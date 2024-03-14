@@ -17,32 +17,37 @@ int ledPin = 6;
 int buzzerPin = 7;
 int frequencia = 0;
 int Pinofalante = 10;
+int valorLDR;
+int intensidadeLuz;
+float pinoLDR = A0;
 
 void setup() {
   Serial.begin(9600);
 
   pinMode(ledPin, OUTPUT);
   pinMode(buzzerPin,OUTPUT);
+  pinMode(pinoLDR, INPUT);
   lcd.init();
   lcd.setBacklight(HIGH);
 
   dht.begin();
 }
 
-// the loop function runs over and over again forever
 void loop() {
   umidade = dht.readHumidity();
   temperatura = dht.readTemperature();
+  valorLDR = analogRead(pinoLDR);
+  intensidadeLuz = map(valorLDR, 0, 1023, 0, 100);
 
   if(inicio == 0){
-    printaValores(temperatura, umidade);
+    printaValores(temperatura, umidade, intensidadeLuz);
     umidadeOld = umidade;
     temperaturaOld = temperatura;
     tempo = millis();
     inicio++;
   }
 
-  if (umidade < 30 || umidade > 50 || temperatura < 15 || temperatura > 25) {
+  if (umidade < 30 || umidade > 60 || temperatura < 15 || temperatura > 25 || intensidadeLuz == 0 || intensidadeLuz > 30) {
 //    acionaAlarme(); 
   }
 
@@ -52,7 +57,7 @@ void loop() {
     float mediaTemp = (temperatura + temperaturaOld) / 2;
     float mediaUmd = (umidade + umidadeOld) / 2;
 
-    printaValores(mediaTemp, mediaUmd);
+    printaValores(mediaTemp, mediaUmd, intensidadeLuz);
 
     umidadeOld = umidade;
     temperaturaOld = temperatura;
@@ -78,13 +83,17 @@ void acionaAlarme() {
   delay(10);
 }
 
-void printaValores(float temp, float umd) {
+void printaValores(float temp, float umd, int lum) {
   lcd.setCursor(0, 0);
-  lcd.print("U: ");
-  lcd.print(umd);
-  lcd.print(" %");
+  lcd.print("U:");
+  lcd.print(umd, 1);
+  lcd.print("%");
+  lcd.setCursor(10, 0);
+  lcd.print("L:");
+  lcd.print(lum);
+  lcd.print("%");
   lcd.setCursor(0, 1);
-  lcd.print("T: ");
-  lcd.print(temp);
-  lcd.print(" C");
+  lcd.print("T:");
+  lcd.print(temp, 1);
+  lcd.print("C");
 }
