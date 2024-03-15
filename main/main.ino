@@ -31,6 +31,8 @@ void setup() {
   lcd.setBacklight(HIGH);
 
   dht.begin();
+
+  intro();
 }
 
 void loop() {
@@ -96,4 +98,64 @@ void printaValores(float temp, float umd, int lum) {
   lcd.print("T:");
   lcd.print(temp, 1);
   lcd.print("C");
+}
+
+void intro(){
+  int i=4;
+  int line=0;
+
+  byte regua[] = {
+  B10101,
+  B11101,
+  B11111,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000
+
+};
+
+byte reguaBaixa[] = {
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B10101,
+  B11101,
+  B11111
+};
+
+
+  lcd.createChar(0, reguaBaixa);
+  lcd.createChar(1,regua);
+  
+  
+  for(int i=0;i<6;i++){
+    lcd.clear();
+    lcd.setCursor(i,0);
+    lcd.print("MeSure");
+    delay(250);
+  }
+  
+  while(i<13){
+    lcd.setCursor(i,1);
+    lcd.write(byte(line));
+    
+    i++;
+    
+    if(i==12 && line==1){
+     break;
+    }
+    else if(i==12){
+      delay(250);
+      i=4;
+      line++;
+    }
+  }
+  
+  delay(1000);
+  lcd.clear();
+  lcd.print("CARREGANDO...");
 }
