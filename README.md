@@ -1,6 +1,6 @@
 # MeSure
 
-## Ojective
+## Objective
 Having in sight the advancement of globalization and intense bussines abroad, a certain difficulty to ensure the quality and integrity of products that needs special conditions emmerge. To resolve this, MeSure build a device to monitor temperature, humidity and luminosity disponsing then in a lcd display and when the measures exceed a pre set value, it warnings by led and sound alarms.  
 
 ## Objetivo
