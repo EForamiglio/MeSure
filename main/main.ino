@@ -1,7 +1,6 @@
 #include "DHT.h"
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
-#include "Button.h"
 
 #define DHTPIN A1
 #define DHTTYPE DHT11
