@@ -1,20 +1,17 @@
 # MeSure
 
-## Objective
-Having in sight the advancement of globalization and intense bussiness abroad, a certain difficulty to ensure the quality and integrity of products that needs special conditions emmerge. To resolve this, MeSure build a device to monitor temperature, humidity and luminosity disponsing then in a lcd display and when the measures exceed a pre set value, it warnings by led and sound alarms.  
-
 ## Objetivo
 Visto que estamos inseridos em um mundo globalizado e de intenso tráfego de grandes distâncias, surge assim a dificuldade de garantir a qualidade e a integridade de produtos que demandam condições especiais. Pensando nisso, nós da MeSure, desenvolvemos um dispositivo capaz de monitorar temperatura, umidade e luminosidade ambiente, dispondo essas informações em display e alertando caso preciso através de sinais luminosos e sonoros.
 
 ## Requisitos de Hardware
 
-> 1 Arduino UNO R3
-> Sensores de luminosidade (LDR), temperatura e umidade (DHT11).
-> 1 Protoboard
-> 1 LCD 16x2 - I2C
-> 1 RTC (Real Time Clock)
-> Componentes adicionais: 2 resistores, 20 cabos de ligação, 1 LED, 1 Buzzer
-> 1 Bateria de 9V e suporte para bateria
+- 1 Arduino UNO R3
+- Sensores de luminosidade (LDR), temperatura e umidade (DHT11).
+- 1 Protoboard
+- 1 LCD 16x2 - I2C
+- 1 RTC (Real Time Clock)
+- Componentes adicionais: 2 resistores, 20 cabos de ligação, 1 LED, 1 Buzzer
+- 1 Bateria de 9V e suporte para bateria
 
 ## Requisitos de Software
 
@@ -42,3 +39,19 @@ As principais interconexões feitas para o sistema funcionar foram as conexões 
 - O RTC opera com segundos, minutos, horas, dia, data, informações de mês e ano. A data no final do mês é ajustada automaticamente para meses com menos de 31 dias e inclui correções para anos bissextos. O relógio funciona no formato de 24 horas ou de 12 horas com um indicador AM/PM. Suas especificações são: tensão de operação VCC: 2.3VCC à 5.5VCC, chip de memória: AT24C32, contagem de segundos, minutos, horas, Data do mês, mês, dia da semana e Ano, com compensação de ano bissexto válido até 2100 e interface serial I2C de alta velocidade (400 KHZ).
 
 ## Detalhes de Funcionamento
+
+
+
+## Objective
+Given that we operate in a globalized world with intense traffic over long distances, ensuring the quality and integrity of products requiring special conditions becomes challenging. With this in mind, we at MeSure have developed a device capable of monitoring temperature, humidity, and ambient light, displaying this information on a screen and alerting when necessary through visual and audible signals. 
+
+
+## Hardware Requirements
+- 1 Arduino UNO R3
+- Light sensors (LDR), temperature, and humidity sensors (DHT11).
+- 1 Protoboard
+- 1 LCD 16x2 - I2C
+- 1 RTC (Real Time Clock)
+- Additional components: 2 resistors, 20 jumper wires, 1 LED, 1 Buzzer
+- 1 9V battery and battery holder
+
