@@ -22,12 +22,12 @@ int ledPin = 6;
 int buzzerPin = 7;
 int frequencia = 0;
 int Pinofalante = 10;
-float tempMin = 15;
-float tempMax = 25;
-float umiMin = 30;
-float umiMax = 60;
-float lumMin = 0;
-float lumMax = 30;
+int tempMin = 15;
+int tempMax = 25;
+int umiMin = 30;
+int umiMax = 60;
+int lumMin = 0;
+int lumMax = 30;
 
 //luz
 int valorLDR;
@@ -35,10 +35,10 @@ int intensidadeLuz;
 float pinoLDR = A0;
 
 //botao
-int buttonMode = 2;
-int buttonMais = 3;
-int buttonMenos = 4;
-int buttonEscolha = 5;
+int buttonMode = 13;
+int buttonMais = 12;
+int buttonMenos = 8;
+int buttonEscolha = 2;
 bool editando = false;
 int numEdicao = 0;
 bool escolha = false;
@@ -53,6 +53,8 @@ const int NUM_LEITURAS = 5;
 const int INICIO_EEPROM_ADDR = 0;
 const int COMPRIMENTO_MAX_STRING = 17; // 14 caracteres para "DD/MM/YYYY HH:MM", mais 3 pela EEPROM
 char buffer[COMPRIMENTO_MAX_STRING]; // Declaração do buffer corrigida
+unsigned long rctTime;
+String dataHoraAtual;
 
 int inicio = 0;
 
@@ -77,121 +79,124 @@ void setup() {
 }
 
 void loop() {
+   DateTime agora = rtc.now();
+   dataHoraAtual = formatarDataHora(agora);
    int modeState = digitalRead(buttonMode);
    int maisState = digitalRead(buttonMais);
    int menosState = digitalRead(buttonMenos);
    int escolhaState = digitalRead(buttonEscolha);
   
   if(inicio == 0){
-  atualizaMedidas();
+    atualizaMedidas();
     printaValores(temperatura, umidade, intensidadeLuz);
     umidadeOld = umidade;
     temperaturaOld = temperatura;
-  intensidadeLuzOld = intensidadeLuz;
+    intensidadeLuzOld = intensidadeLuz;
     tempo = millis();
     inicio++;
   }
   
-  if(modeState == HIGH && (millis() - changeTime) > 2000) {
-  if(numEdicao == 0) {
-    lcd.clear();
-    editando = true;
-    introEdicao();
-    numEdicao = 1;
-    delay(1000);
-    lcd.clear();
-  }
-  if(numEdicao == 1) {
-    edicaoTemp();
-  }
-  if(numEdicao == 2) {
-    lcd.clear();
-    edicaoUmi();
-  }
-  if(numEdicao == 3) {
-    lcd.clear();
-    edicaoLum();
-  }
-  if(numEdicao == 4) {
-    lcd.clear();
-    introMedicao();
-    delay(1000);
-    lcd.clear();
-    printaValores(temperaturaOld, umidadeOld, intensidadeLuzOld);
-    editando = false;
-  }
-  numEdicao++;
-  changeTime = millis();
+  if(modeState == HIGH && (millis() - changeTime) > 1000) {
+    if(numEdicao == 0) {
+      lcd.clear();
+      editando = true;
+      introEdicao();
+      numEdicao = 1;
+      delay(1000);
+      lcd.clear();
+    }
+    if(numEdicao == 1) {
+      edicaoTemp();
+    }
+    if(numEdicao == 2) {
+      lcd.clear();
+      edicaoUmi();
+    }
+    if(numEdicao == 3) {
+      lcd.clear();
+      edicaoLum();
+    }
+    if(numEdicao == 4) {
+      lcd.clear();
+      introMedicao();
+      delay(1000);
+      lcd.clear();
+      printaValores(temperaturaOld, umidadeOld, intensidadeLuzOld);
+      editando = false;
+    }
+    numEdicao++;
+    changeTime = millis();
   } else {
-   if(!editando) {
-    numEdicao = 0;
-    calculaMedia();
-   }
-   else {
-    if(escolhaState == HIGH && (millis() - choiceTime) > 1000) {
-      escolha = !escolha;
-      choiceTime = millis();
+    if(!editando) {
+    
+      numEdicao = 0;
+      calculaMedia();
+      if(umidadeOld < umiMin || umidadeOld > umiMax || temperaturaOld < tempMin || temperaturaOld > tempMax || intensidadeLuzOld < lumMin || intensidadeLuzOld < lumMin || intensidadeLuzOld > lumMax) {
+        acionaAlarme(modeState);
+        // RTC
+        if(millis() - rctTime == 4000) {
+          
+            // Atualiza a EEPROM
+            atualizarEEPROM(dataHoraAtual);
+            
+            // Imprime a fila
+            Serial.print("Fila: ");
+            for (int i = 0; i < NUM_LEITURAS; i++) {
+              String leitura = lerEEPROM(INICIO_EEPROM_ADDR + i * COMPRIMENTO_MAX_STRING);
+              if (leitura != "00/00/0000 00:00") {
+                Serial.print(leitura);
+              }
+              if (i < NUM_LEITURAS - 1 && leitura != "00/00/0000 00:00") {
+                Serial.print(", ");
+              }
+            }
+            Serial.println();
+        }
+      }
     }
-    int numEditar = numEdicao - 1;
-    if(maisState == HIGH && (millis() - altTime) > 500) {
-      if(numEditar == 1) {
-       alterarTempMais();
-       atualizaTempEdicao();
+    else {
+      if(escolhaState == HIGH && (millis() - choiceTime) > 500) {
+        escolha = !escolha;
+        choiceTime = millis();
       }
-      if(numEditar == 2) {
-       alterarUmiMais();
-       atualizaUmiEdicao();
-      }
-      if(numEditar == 3) {
-       alterarLumMais();
-       atualizaLumEdicao();
-      }
-        altTime = millis();
-    }
-    if(menosState == HIGH && (millis() - altTime) > 500) {
-      if(numEditar == 1) {
-       alterarTempMenos();
-       atualizaTempEdicao();
+      int numEditar = numEdicao - 1;
+      if(maisState == HIGH && (millis() - altTime) > 500) {
+        if(numEditar == 1) {
+         alterarTempMais();
+         edicaoTemp();
         }
         if(numEditar == 2) {
-       alterarUmiMenos();
-       atualizaUmiEdicao();
+         alterarUmiMais();
+         edicaoUmi();
         }
         if(numEditar == 3) {
-       alterarLumMenos();
-       atualizaLumEdicao();
+         alterarLumMais();
+         edicaoLum();
         }
-        altTime = millis();
+          altTime = millis();
+      }
+      if(menosState == HIGH && (millis() - altTime) > 500) {
+        if(numEditar == 1) {
+         alterarTempMenos();
+         edicaoTemp();
+          }
+          if(numEditar == 2) {
+         alterarUmiMenos();
+         edicaoUmi();
+          }
+          if(numEditar == 3) {
+         alterarLumMenos();
+         edicaoLum();
+          }
+          altTime = millis();
+      }
     }
-
    }
   }
 
-// RTC
-DateTime agora = rtc.now();
-  String dataHoraAtual = formatarDataHora(agora);
-
-  // Atualiza a EEPROM
-  atualizarEEPROM(dataHoraAtual);
-  
-  // Imprime a fila
-  Serial.print("Fila: ");
-  for (int i = 0; i < NUM_LEITURAS; i++) {
-    String leitura = lerEEPROM(INICIO_EEPROM_ADDR + i * COMPRIMENTO_MAX_STRING);
-    if (leitura != "00/00/0000 00:00") {
-      Serial.print(leitura);
-    }
-    if (i < NUM_LEITURAS - 1 && leitura != "00/00/0000 00:00") {
-      Serial.print(", ");
-    }
-  }
-  Serial.println();
-  
-  delay(1000);
-}
 // Função para calcular a média das medidas de temperatura, umidade e luminosidade
 void calculaMedia() {
-  if(millis() - tempo == 15000) { // Verifica se passaram 15 segundos desde a última medição
+  if(millis() - tempo == 3000) { // Verifica se passaram 15 segundos desde a última medição
     tempo = millis(); // Atualiza o tempo para o momento atual
     
     atualizaMedidas(); // Chama a função para atualizar as medidas
@@ -208,6 +213,10 @@ void calculaMedia() {
     umidadeOld = mediaUmd;
     temperaturaOld = mediaTemp;
     intensidadeLuzOld = mediaLuz;
+
+    Serial.println(intensidadeLuzOld);
+    Serial.println(temperaturaOld);
+    Serial.println(umidadeOld);
   }
 }
 
@@ -223,21 +232,34 @@ void atualizaMedidas() {
 }
 
 // Função para acionar o alarme sonoro e visual
-void acionaAlarme() {
+void acionaAlarme(int modeState) {
   // Gera um som crescente no buzzer e acende o LED
-  for (frequencia = 150; frequencia < 1800; frequencia += 1) {
-    tone(buzzerPin, frequencia, tempoBuzzer);
-    delay(1);
-  }
+//  for (frequencia = 150; frequencia < 1800; frequencia += 1) {
+//    tone(buzzerPin, frequencia, tempoBuzzer);
+//    delay(1);
+//  }
+//  digitalWrite(ledPin, HIGH);
+//  delay(10);
+//  
+//  // Gera um som decrescente no buzzer e apaga o LED
+//  for (frequencia = 1800; frequencia > 150; frequencia -= 1) {
+//    tone(buzzerPin, frequencia, tempoBuzzer);
+//    delay(1);
+//  }
   digitalWrite(ledPin, HIGH);
-  delay(10);
+  tone(buzzerPin, 1500, tempoBuzzer);
   
-  // Gera um som decrescente no buzzer e apaga o LED
-  for (frequencia = 1800; frequencia > 150; frequencia -= 1) {
-    tone(buzzerPin, frequencia, tempoBuzzer);
-    delay(1);
+  if(modeState == HIGH && (millis() - changeTime) > 1000) {
+      lcd.clear();
+      editando = true;
+      introEdicao();
+      numEdicao = 1;
+      delay(1000);
+      lcd.clear();
+      changeTime = millis();
   }
-  digitalWrite(ledPin, LOW);
+  
+//  digitalWrite(ledPin, LOW);
   delay(10);
 }
 
@@ -255,6 +277,8 @@ void printaValores(float temp, float umd, int lum) {
   lcd.print("T:"); // Imprime "T:" na segunda linha do LCD
   lcd.print(temp, 1); // Imprime o valor da temperatura com uma casa decimal
   lcd.print("C"); // Imprime o símbolo de graus Celsius
+  lcd.setCursor(7,1);
+  lcd.print(dataHoraAtual);
 }
 
 
@@ -312,28 +336,6 @@ void edicaoLum() {
   lcd.setCursor(5, 1); // Define o cursor na posição (5, 1) do LCD
   lcd.print(lumMax); // Imprime o valor de lumMax na segunda linha do LCD
   lcd.print(" Vmin:  "); // Imprime " Vmin:  " na segunda linha do LCD
-  lcd.setCursor(13, 1); // Define o cursor na posição (13, 1) do LCD
-  lcd.print(lumMin); // Imprime o valor de lumMin na segunda linha do LCD
-}
-
-// Funções para atualizar os valores de temperatura, umidade e luminosidade na tela de edição
-void atualizaTempEdicao() {
-  lcd.setCursor(5, 1); // Define o cursor na posição (5, 1) do LCD
-  lcd.print(tempMax); // Imprime o valor de tempMax na segunda linha do LCD
-  lcd.setCursor(13, 1); // Define o cursor na posição (13, 1) do LCD
-  lcd.print(tempMin); // Imprime o valor de tempMin na segunda linha do LCD
-}
-
-void atualizaUmiEdicao() {
-  lcd.setCursor(5, 1); // Define o cursor na posição (5, 1) do LCD
-  lcd.print(umiMax); // Imprime o valor de umiMax na segunda linha do LCD
-  lcd.setCursor(13, 1); // Define o cursor na posição (13, 1) do LCD
-  lcd.print(umiMin); // Imprime o valor de umiMin na segunda linha do LCD
-}
-
-void atualizaLumEdicao() {
-  lcd.setCursor(5, 1); // Define o cursor na posição (5, 1) do LCD
-  lcd.print(lumMax); // Imprime o valor de lumMax na segunda linha do LCD
   lcd.setCursor(13, 1); // Define o cursor na posição (13, 1) do LCD
   lcd.print(lumMin); // Imprime o valor de lumMin na segunda linha do LCD
 }
