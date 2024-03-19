@@ -55,3 +55,30 @@ Given that we operate in a globalized world with intense traffic over long dista
 - Additional components: 2 resistors, 20 jumper wires, 1 LED, 1 Buzzer
 - 1 9V battery and battery holder
 
+
+## Software Requirements
+- Embedded program for the Arduino enabling sensor readings, comparison of sensor values with pre-established parameters, obtaining RTC timestamps, and storing collected data in EEPROM.
+- Algorithms for sensor readings and conversion of analog readings into humidity, light, and temperature values.
+- Simple user interface to display measured values of each variable.
+- Logic to manage available space in EEPROM and ensure that older data is overwritten as necessary.
+- Storage of collected data in the Arduino's EEPROM, utilizing an appropriate format to represent humidity, light, temperature, and time values.
+- Capability to manage data storage efficiently, avoiding loss of important information due to memory issues or power failures.
+
+
+## System Architecture
+The Arduino firmware reads variables captured by the sensors, calculates the average of readings taken within a minute, displays this average on the screen for the user, and compares the values to the parameters established in the code. If any of the variables exceed the parameters, the firmware captures date and time information from the RTC.
+Finally, the data is stored in the Arduino's EEPROM, replacing older data to prevent memory overflow using a list structure.
+The firmware may utilize specific libraries to interact with the sensors. The libraries used for this project are: "DHT", "Wire", "LiquidCrystal_I2C", "RTClib", "EEPROM".
+The primary connections made for the system to function include physical connections between the Arduino and the sensors for data acquisition, the connection between the Arduino and RTC for timekeeping, and the use of input/output ports to access the EEPROM and store collected data.
+
+
+## Hardware Description
+- The project utilizes an Arduino UNO R3 board. Its microcontroller is the ATmega328P from Microchip, with a clock speed of 16 MHz and 32 KB of flash memory, of which 0.5 KB is used by the bootloader. It features a USB interface that allows connection to a computer for programming and serial communication. It also provides 14 digital input/output pins. It has a small EEPROM (Electrically Erasable Programmable Read-Only Memory) of 1 KB for non-volatile data storage, which will be used by the project to store the last 5 records where one of the variables exceeds the parameters, along with the date and time of the event.
+Its power source is via the USB port of the computer or with an external power adapter (7-12V), connected to the power jack. The program used to program the components was the Arduino IDE (Integrated Development Environment) itself, which uses a simplified C/C++ programming language.
+- The temperature and humidity sensor used was the DHT11. In practice, it detects humidity and temperature, sending this information to the microcontroller board, which must be programmed to take some action when a certain temperature or humidity is reached. In the project, it is through the Arduino board, where it is possible to program the microcontroller board to turn on the LED and Buzzer when the environment reaches a certain temperature or humidity level. It has some specifications, such as: operating voltage of 3 ~ 5.5 Vdc, current range of 0.5 ~ 2.5 mA, humidity operating range of 20 ~ 90%, temperature operating range of 0 ~ 50 degrees Celsius.
+- The light sensor used is the LDR (Light Dependent Resistor), a component whose resistance varies according to the intensity of light. The more light incident on the component, the lower the resistance. This light sensor can be used in projects with Arduino and other microcontrollers for alarms, home automation, presence sensors, etc. Some of its specifications are: maximum voltage of 150VDC, maximum power of 100mW, dark resistance of 1 MΩ (Lux 0), and light resistance of 10-20 KΩ (Lux 10).
+- The DS3231 Real Time Clock (RTC) module acts so that addresses and data are transferred serially through a bidirectional I2C bus and can be used with Arduino and other microcontrollers. It provides a precision real-time clock (RTC) and operates alongside a temperature-compensated crystal oscillator (TCXO) and crystal. Additionally, the module has a battery input to maintain precise timing when the main power of the device is interrupted.
+- The RTC operates with seconds, minutes, hours, day, date, month, and year information. The date at the end of the month is automatically adjusted for months with less than 31 days and includes corrections for leap years. The clock operates in 24-hour or 12-hour format with an AM/PM indicator. Its specifications include: operating voltage VCC: 2.3VCC to 5.5VCC, memory chip: AT24C32, counting seconds, minutes, hours, day of the month, month, day of the week, and year, with leap year compensation valid up to 2100 and high-speed I2C serial interface (400 KHZ).
+
+
+## Operational Details (tbd)
