@@ -57,145 +57,138 @@ char buffer[COMPRIMENTO_MAX_STRING]; // Declaração do buffer corrigida
 int inicio = 0;
 
 void setup() {
-  // Inicia a comunicação serial com uma taxa de transmissão de 9600 baud
   Serial.begin(9600);
 
-  // Configura os pinos como entrada ou saída conforme necessário
   pinMode(ledPin, OUTPUT);
-  pinMode(buzzerPin, OUTPUT);
+  pinMode(buzzerPin,OUTPUT);
   pinMode(pinoLDR, INPUT);
   pinMode(buttonMode, INPUT);
   pinMode(buttonMais, INPUT);
   pinMode(buttonMenos, INPUT);
   pinMode(buttonEscolha, INPUT);
-
-  // Inicia o LCD
   lcd.init();
-  // Liga o backlight do LCD
   lcd.setBacklight(HIGH);
 
-  // Inicia o sensor DHT
   dht.begin();
-
-  // Inicia o RTC (Real-Time Clock)
+  
   rtc.begin();
 
-  // Executa a função de introdução
   intro();
 }
 
 void loop() {
-  // Lê o estado dos botões
-  int modeState = digitalRead(buttonMode);
-  int maisState = digitalRead(buttonMais);
-  int menosState = digitalRead(buttonMenos);
-  int escolhaState = digitalRead(buttonEscolha);
-
-  // Inicializa as medidas na primeira iteração do loop
-  if (inicio == 0) {
-    atualizaMedidas(); // Atualiza as medidas de temperatura, umidade e luminosidade
-    printaValores(temperatura, umidade, intensidadeLuz); // Exibe os valores no LCD
-    // Salva as medidas antigas para cálculo da média
+   int modeState = digitalRead(buttonMode);
+   int maisState = digitalRead(buttonMais);
+   int menosState = digitalRead(buttonMenos);
+   int escolhaState = digitalRead(buttonEscolha);
+  
+  if(inicio == 0){
+  atualizaMedidas();
+    printaValores(temperatura, umidade, intensidadeLuz);
     umidadeOld = umidade;
     temperaturaOld = temperatura;
-    intensidadeLuzOld = intensidadeLuz;
-    tempo = millis(); // Inicializa o contador de tempo
-    inicio++; // Incrementa a variável de início
+  intensidadeLuzOld = intensidadeLuz;
+    tempo = millis();
+    inicio++;
   }
-
-  // Verifica se o botão de modo foi pressionado e passou o tempo de debounce
-  if (modeState == HIGH && (millis() - changeTime) > 2000) {
-    // Executa as ações de edição ou medição dependendo do número de edição
-    if (numEdicao == 0) {
-      lcd.clear(); // Limpa o LCD
-      editando = true; // Define o modo de edição como verdadeiro
-      introEdicao(); // Exibe a mensagem de introdução ao modo de edição
-      numEdicao = 1; // Atualiza o número de edição
-      delay(1000); // Aguarda 1 segundo
-      lcd.clear(); // Limpa o LCD
-    }
-    // Seleciona a tela de edição correspondente ao número de edição
-    if (numEdicao == 1) {
-      edicaoTemp();
-    }
-    if (numEdicao == 2) {
-      lcd.clear(); // Limpa o LCD
-      edicaoUmi();
-    }
-    if (numEdicao == 3) {
-      lcd.clear(); // Limpa o LCD
-      edicaoLum();
-    }
-    if (numEdicao == 4) {
-      lcd.clear(); // Limpa o LCD
-      introMedicao(); // Exibe a mensagem de introdução ao modo de medição
-      delay(1000); // Aguarda 1 segundo
-      lcd.clear(); // Limpa o LCD
-      printaValores(temperaturaOld, umidadeOld, intensidadeLuzOld); // Exibe os valores antigos no LCD
-      editando = false; // Define o modo de edição como falso
-    }
-    numEdicao++; // Incrementa o número de edição
-    changeTime = millis(); // Atualiza o tempo de mudança
+  
+  if(modeState == HIGH && (millis() - changeTime) > 2000) {
+  if(numEdicao == 0) {
+    lcd.clear();
+    editando = true;
+    introEdicao();
+    numEdicao = 1;
+    delay(1000);
+    lcd.clear();
+  }
+  if(numEdicao == 1) {
+    edicaoTemp();
+  }
+  if(numEdicao == 2) {
+    lcd.clear();
+    edicaoUmi();
+  }
+  if(numEdicao == 3) {
+    lcd.clear();
+    edicaoLum();
+  }
+  if(numEdicao == 4) {
+    lcd.clear();
+    introMedicao();
+    delay(1000);
+    lcd.clear();
+    printaValores(temperaturaOld, umidadeOld, intensidadeLuzOld);
+    editando = false;
+  }
+  numEdicao++;
+  changeTime = millis();
   } else {
-    if (!editando) { // Se não estiver no modo de edição
-      numEdicao = 0; // Reseta o número de edição
-      calculaMedia(); // Calcula a média das medidas
-    } else { // Se estiver no modo de edição
-      if (escolhaState == HIGH && (millis() - choiceTime) > 1000) {
-        escolha = !escolha; // Inverte a escolha entre temperatura máxima e mínima
-        choiceTime = millis(); // Atualiza o tempo de escolha
-      }
-      int numEditar = numEdicao - 1; // Obtém o número de edição atual
-      if (maisState == HIGH && (millis() - altTime) > 500) {
-        // Se o botão de aumento foi pressionado e passou o tempo de debounce
-        if (numEditar == 1) {
-          alterarTempMais(); // Aumenta a temperatura máxima ou mínima
-          atualizaTempEdicao(); // Atualiza o valor da temperatura no LCD
-        }
-        if (numEditar == 2) {
-          alterarUmiMais(); // Aumenta a umidade máxima ou mínima
-          atualizaUmiEdicao(); // Atualiza o valor da umidade no LCD
-        }
-        if (numEditar == 3) {
-          alterarLumMais(); // Aumenta a luminosidade máxima ou mínima
-          atualizaLumEdicao(); // Atualiza o valor da luminosidade no LCD
-        }
-        altTime = millis(); // Atualiza o tempo de alteração
-      }
-      if (menosState == HIGH && (millis() - altTime) > 500) {
-        // Se o botão de diminuição foi pressionado e passou o tempo de debounce
-        if (numEditar == 1) {
-          alterarTempMenos(); // Diminui a temperatura máxima ou mínima
-          atualizaTempEdicao(); // Atualiza o valor da temperatura no LCD
-        }
-        if (numEditar == 2) {
-          alterarUmiMenos(); // Diminui a umidade máxima ou mínima
-          atualizaUmiEdicao(); // Atualiza o valor da umidade no LCD
-        }
-        if (numEditar == 3) {
-          alterarLumMenos(); // Diminui a luminosidade máxima ou mínima
-          atualizaLumEdicao(); // Atualiza o valor da luminosidade no LCD
-        }
-        altTime = millis(); // Atualiza o tempo de alteração
-      }
+   if(!editando) {
+    numEdicao = 0;
+    calculaMedia();
+   }
+   else {
+    if(escolhaState == HIGH && (millis() - choiceTime) > 1000) {
+      escolha = !escolha;
+      choiceTime = millis();
     }
+    int numEditar = numEdicao - 1;
+    if(maisState == HIGH && (millis() - altTime) > 500) {
+      if(numEditar == 1) {
+       alterarTempMais();
+       atualizaTempEdicao();
+      }
+      if(numEditar == 2) {
+       alterarUmiMais();
+       atualizaUmiEdicao();
+      }
+      if(numEditar == 3) {
+       alterarLumMais();
+       atualizaLumEdicao();
+      }
+        altTime = millis();
+    }
+    if(menosState == HIGH && (millis() - altTime) > 500) {
+      if(numEditar == 1) {
+       alterarTempMenos();
+       atualizaTempEdicao();
+        }
+        if(numEditar == 2) {
+       alterarUmiMenos();
+       atualizaUmiEdicao();
+        }
+        if(numEditar == 3) {
+       alterarLumMenos();
+       atualizaLumEdicao();
+        }
+        altTime = millis();
+    }
+
+   }
   }
 
-  // Obtém a data e hora atual do RTC
-  DateTime agora = rtc.now();
-  // Formata a data e hora atual como uma string
+// RTC
+DateTime agora = rtc.now();
   String dataHoraAtual = formatarDataHora(agora);
 
-  // Atualiza a EEPROM com a data e hora atual
+  // Atualiza a EEPROM
   atualizarEEPROM(dataHoraAtual);
-
-  // Imprime a fila de leituras na porta serial
+  
+  // Imprime a fila
   Serial.print("Fila: ");
   for (int i = 0; i < NUM_LEITURAS; i++) {
     String leitura = lerEEPROM(INICIO_EEPROM_ADDR + i * COMPRIMENTO_MAX_STRING);
-    if (leitura != "00/00
-
-
+    if (leitura != "00/00/0000 00:00") {
+      Serial.print(leitura);
+    }
+    if (i < NUM_LEITURAS - 1 && leitura != "00/00/0000 00:00") {
+      Serial.print(", ");
+    }
+  }
+  Serial.println();
+  
+  delay(1000);
+}
 // Função para calcular a média das medidas de temperatura, umidade e luminosidade
 void calculaMedia() {
   if(millis() - tempo == 15000) { // Verifica se passaram 15 segundos desde a última medição
