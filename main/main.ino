@@ -277,7 +277,7 @@ void printaValores(float temp, float umd, int lum) {
   lcd.print("T:"); // Imprime "T:" na segunda linha do LCD
   lcd.print(temp, 1); // Imprime o valor da temperatura com uma casa decimal
   lcd.print("C"); // Imprime o símbolo de graus Celsius
-  lcd.setCursor(7,1);
+  lcd.setCursor(10,1);
   lcd.print(dataHoraAtual);
 }
 
@@ -397,7 +397,7 @@ String formatarDataHora(DateTime dt) {
   // Define um buffer para armazenar a data e hora formatadas
   char buffer[COMPRIMENTO_MAX_STRING];
   // Usa snprintf para formatar a data e hora no buffer
-  snprintf(buffer, COMPRIMENTO_MAX_STRING, "%02d/%02d/%04d %02d:%02d", dt.day(), dt.month(), dt.year(), dt.hour(), dt.minute());
+  snprintf(buffer, COMPRIMENTO_MAX_STRING, "%02d/%02d", dt.day(), dt.month());
   // Retorna a data e hora formatadas como uma string
   return String(buffer);
 }
