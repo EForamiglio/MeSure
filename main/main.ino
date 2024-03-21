@@ -51,10 +51,11 @@ RTC_DS1307 rtc;
 const int TAMANHO_EEPROM = 512;
 const int NUM_LEITURAS = 5;
 const int INICIO_EEPROM_ADDR = 0;
-const int COMPRIMENTO_MAX_STRING = 17; // 14 caracteres para "DD/MM/YYYY HH:MM", mais 3 pela EEPROM
+const int COMPRIMENTO_MAX_STRING = 39; // 14 caracteres para "DD/MM/YYYY HH:MM / ll%L / uu%U / tt.tC", mais 3 pela EEPROM
 char buffer[COMPRIMENTO_MAX_STRING]; // Declaração do buffer corrigida
 unsigned long rctTime;
 String dataHoraAtual;
+int valorEmerg = 0;
 
 int inicio = 0;
 
@@ -74,13 +75,17 @@ void setup() {
   dht.begin();
   
   rtc.begin();
+   if (!rtc.isrunning()) {
+    rtc.adjust(DateTime(__DATE__, __TIME__));
+    delay(1000);
+   }
 
   intro();
 }
 
 void loop() {
    DateTime agora = rtc.now();
-   dataHoraAtual = formatarDataHora(agora);
+   // dataHoraAtual = formatarDataHora(agora);
    int modeState = digitalRead(buttonMode);
    int maisState = digitalRead(buttonMais);
    int menosState = digitalRead(buttonMenos);
@@ -133,8 +138,10 @@ void loop() {
       calculaMedia();
       if(umidadeOld < umiMin || umidadeOld > umiMax || temperaturaOld < tempMin || temperaturaOld > tempMax || intensidadeLuzOld < lumMin || intensidadeLuzOld < lumMin || intensidadeLuzOld > lumMax) {
         acionaAlarme(modeState);
+    dataHoraAtual = formatarDataHora(agora, intensidadeLuzOld, umidadeOld, temperaturaOld);
+    valorEmerg++;
         // RTC
-        if(millis() - rctTime > 4000) {
+        if(millis() - rctTime > 4000 && valorEmerg == 1) {
           
             // Atualiza a EEPROM
             atualizarEEPROM(dataHoraAtual);
@@ -152,9 +159,12 @@ void loop() {
             }
             Serial.println();
         }
-      }
+      } else {
+    valorEmerg = 0;
+  digitalWrite(ledPin, LOW);}
     }
     else {
+    digitalWrite(ledPin, LOW);
       if(escolhaState == HIGH && (millis() - choiceTime) > 500) {
         escolha = !escolha;
         choiceTime = millis();
@@ -214,9 +224,9 @@ void calculaMedia() {
     temperaturaOld = mediaTemp;
     intensidadeLuzOld = mediaLuz;
 
-    Serial.println(intensidadeLuzOld);
-    Serial.println(temperaturaOld);
-    Serial.println(umidadeOld);
+    // Serial.println(intensidadeLuzOld);
+    // Serial.println(temperaturaOld);
+    // Serial.println(umidadeOld);
   }
 }
 
@@ -260,9 +270,6 @@ void acionaAlarme(int modeState) {
       lcd.clear();
       changeTime = millis();
   }
-  
-  digitalWrite(ledPin, LOW);
-  delay(10);
 }
 
 // Função para imprimir os valores de temperatura, umidade e luminosidade no LCD
@@ -279,8 +286,6 @@ void printaValores(float temp, float umd, int lum) {
   lcd.print("T:"); // Imprime "T:" na segunda linha do LCD
   lcd.print(temp, 1); // Imprime o valor da temperatura com uma casa decimal
   lcd.print("C"); // Imprime o símbolo de graus Celsius
-  lcd.setCursor(10,1);
-  lcd.print(dataHoraAtual);
 }
 
 
@@ -395,11 +400,11 @@ void alterarLumMenos() {
 ///RTC
 
 // Método para formatar uma data e hora em uma string
-String formatarDataHora(DateTime dt) {
+String formatarDataHora(DateTime dt, int lum, float umd, float temp) {
   // Define um buffer para armazenar a data e hora formatadas
   char buffer[COMPRIMENTO_MAX_STRING];
-  // Usa snprintf para formatar a data e hora no buffer
-  snprintf(buffer, COMPRIMENTO_MAX_STRING, "%02d/%02d", dt.day(), dt.month());
+  // Usa snprintf para formatar a data e hora no buffer // 14 caracteres para "DD/MM/YYYY HH:MM / ll%L / uu%U / tt.tC", mais 3 pela EEPROM
+  snprintf(buffer, COMPRIMENTO_MAX_STRING, "%02d/%02d/%04d %02d:%02d / %02dL / %02dU / %02dC", dt.day(), dt.month(), dt.year(), dt.hour(), dt.minute(), lum, (int)umd, (int)temp);
   // Retorna a data e hora formatadas como uma string
   return String(buffer);
 }
