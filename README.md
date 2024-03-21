@@ -10,7 +10,7 @@ Visto que estamos inseridos em um mundo globalizado e de intenso tráfego de gra
 - 1 Protoboard
 - 1 LCD 16x2 - I2C
 - 1 RTC (Real Time Clock)
-- Componentes adicionais: 2 resistores, 20 cabos de ligação, 1 LED, 1 Buzzer
+- Componentes adicionais: 7 resistores, 1 LED, 1 Buzzer, cabos de ligação
 - 1 Bateria de 9V e suporte para bateria
 
 ## Requisitos de Software
@@ -60,7 +60,7 @@ Given that we operate in a globalized world with intense traffic over long dista
 - 1 Protoboard
 - 1 LCD 16x2 - I2C
 - 1 RTC (Real Time Clock)
-- Additional components: 2 resistors, 20 jumper wires, 1 LED, 1 Buzzer
+- Additional components: 7 resistors, 1 LED, 1 Buzzer, jumper wires
 - 1 9V battery and battery holder
 
 
