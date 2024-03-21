@@ -38,7 +38,10 @@ As principais interconexões feitas para o sistema funcionar foram as conexões 
 - Módulo Real Time Clock RTC DS3231 utilizado atua de forma que os endereços e dados sejam transferidos em série através de um barramento bidirecional I2C, e pode ser utilizado com arduino e com os demais microcontroladores. Ele fornece um relógio de precisão em tempo real (RTC) e opera junto à um cristal oscilador compensado por temperatura (TCXO) e cristal. Além disso, o módulo possui uma entrada de bateria de forma a manter a cronometragem precisa quando a alimentação principal do dispositivo é interrompida.
 - O RTC opera com segundos, minutos, horas, dia, data, informações de mês e ano. A data no final do mês é ajustada automaticamente para meses com menos de 31 dias e inclui correções para anos bissextos. O relógio funciona no formato de 24 horas ou de 12 horas com um indicador AM/PM. Suas especificações são: tensão de operação VCC: 2.3VCC à 5.5VCC, chip de memória: AT24C32, contagem de segundos, minutos, horas, Data do mês, mês, dia da semana e Ano, com compensação de ano bissexto válido até 2100 e interface serial I2C de alta velocidade (400 KHZ).
 
-## Detalhes de Funcionamento
+## Diagramas do circuito
+
+### Diagrama elétrico
+![Diagrama elétrico](../ElectricalDiagram.jpg)
 
 
 
@@ -81,4 +84,7 @@ Its power source is via the USB port of the computer or with an external power a
 - The RTC operates with seconds, minutes, hours, day, date, month, and year information. The date at the end of the month is automatically adjusted for months with less than 31 days and includes corrections for leap years. The clock operates in 24-hour or 12-hour format with an AM/PM indicator. Its specifications include: operating voltage VCC: 2.3VCC to 5.5VCC, memory chip: AT24C32, counting seconds, minutes, hours, day of the month, month, day of the week, and year, with leap year compensation valid up to 2100 and high-speed I2C serial interface (400 KHZ).
 
 
-## Operational Details (tbd)
+## Circuit diagrams
+
+### Electrical diagram
+![Electrical diagram](../ElectricalDiagram.jpg)
