@@ -43,6 +43,9 @@ As principais interconexões feitas para o sistema funcionar foram as conexões 
 ### Diagrama elétrico
 <img src="https://github.com/EForamiglio/MeSure/blob/main/ElectricalDiagram.jpg" alt="CircuitoEletrico" style="width: 80%;">
 
+### Visualização do projeto
+<img src="https://github.com/EForamiglio/MeSure/blob/main/System.png" alt="CircuitoEletrico" style="width: 80%;">
+
 
 
 ## Objective
@@ -87,4 +90,7 @@ Its power source is via the USB port of the computer or with an external power a
 ## Circuit diagrams
 
 ### Electrical diagram
-<img src="https://github.com/EForamiglio/MeSure/blob/main/ElectricalDiagram.jpg" alt="CircuitoEletrico" style="width: 80%;">
+<img src="https://github.com/EForamiglio/MeSure/blob/main/ElectricalDiagram.jpg" alt="Electrical diagram" style="width: 80%;">
+
+### Project view
+<img src="https://github.com/EForamiglio/MeSure/blob/main/System.png?raw=true" alt="Project view" style="width: 80%;">
