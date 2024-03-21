@@ -41,7 +41,7 @@ As principais interconexões feitas para o sistema funcionar foram as conexões 
 ## Diagramas do circuito
 
 ### Diagrama elétrico
-![Diagrama elétrico](../ElectricalDiagram.jpg)
+<img src="https://github.com/EForamiglio/MeSure/blob/main/ElectricalDiagram.jpg" alt="CircuitoEletrico" style="width: 80%;">
 
 
 
@@ -87,4 +87,4 @@ Its power source is via the USB port of the computer or with an external power a
 ## Circuit diagrams
 
 ### Electrical diagram
-![Electrical diagram](../ElectricalDiagram.jpg)
+<img src="https://github.com/EForamiglio/MeSure/blob/main/ElectricalDiagram.jpg" alt="CircuitoEletrico" style="width: 80%;">
